@@ -15,7 +15,7 @@ object MyStreamingApp {
   val jobName = "MyStreamingApp"
   // TODO: define the schema for parsing data from Kafka
 
-  val bootstrapServers = "localhost:9092"
+  val bootstrapServers = "35.239.241.212:9092,35.239.230.132:9092,34.69.66.216:9092"
   def main(args: Array[String]): Unit = {
     try {
 
@@ -37,15 +37,18 @@ object MyStreamingApp {
 
       sentences.printSchema
 
-      /*val counts = ???
+      val words = sentences.flatMap(word => {word.split(" ")})
+      val lowercase = words.map(word => word.toLowerCase)
+      val noPeriods = lowercase.map(word => word.replaceAll("[^A-Za-z]", ""))
+      val grouping = noPeriods.groupBy("value").count()
 
-      val query = counts.writeStream
+      val query = grouping.writeStream
         .outputMode(OutputMode.Complete())
         .format("console")
         .trigger(Trigger.ProcessingTime("30 seconds"))
         .start()
 
-      query.awaitTermination()*/
+      query.awaitTermination()
     } catch {
       case e: Exception => logger.error(s"$jobName error in main", e)
     }
